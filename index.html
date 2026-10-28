@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ТЁМНЫЙ ПЛАН · распорядок дня</title>
+  <!-- Font Awesome иконки (для деталей 5, 8, 14, 17) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ----- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ТЁМНАЯ ТЕМА ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    :root {
+      --bg-deep: #0b0e14;
+      --bg-card: #141a24;
+      --bg-elevated: #1e2632;
+      --surface-border: #2c3542;
+      --text-primary: #e8edf5;
+      --text-secondary: #9aa9bb;
+      --accent-glow: #4a9eff;
+      --accent-soft: #2b6ed7;
+      --success: #2ed573;
+      --warning: #ffaa33;
+      --danger: #ff4d6d;
+      --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(74, 158, 255, 0.15);
+      --shadow-glow: 0 0 18px rgba(74, 158, 255, 0.35);
+      --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 10%, #16202c, #0b0e14 90%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    /* ----- ОСНОВНАЯ КАРТОЧКА ПРИЛОЖЕНИЯ (деталь 1: массивная тень+свечение) ----- */
+    .app-wrapper {
+      max-width: 1200px;
+      width: 100%;
+      background: rgba(20, 26, 36, 0.75);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 3.5rem;
+      padding: 2.2rem 2.5rem;
+      border: 1px solid rgba(74, 158, 255, 0.2);
+      box-shadow: var(--shadow-lg), inset 0 1px 1px rgba(255, 255, 255, 0.03);
+      transition: var(--transition);
+    }
+
+    /* ----- ЗАГОЛОВОК С ГРАДИЕНТОМ (деталь 2) ----- */
+    .header-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .title-group h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff 0%, #b3d4ff 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      text-shadow: 0 0 20px rgba(74, 158, 255, 0.5); /* деталь 3: свечение текста */
+    }
+
+    .title-group .subhead {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .title-group .subhead i {
+      color: var(--accent-glow);
+      filter: drop-shadow(0 0 6px var(--accent-glow)); /* деталь 4: свечение иконки */
+    }
+
+    /* ----- КАСТОМНЫЙ ПРИВЕТСТВЕННЫЙ БЛОК (деталь 5) ----- */
+    .greeting-badge {
+      background: rgba(74, 158, 255, 0.12);
+      border: 1px solid rgba(74, 158, 255, 0.35);
+      padding: 0.65rem 1.4rem;
+      border-radius: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(74, 158, 255, 0.1); /* деталь 6: двойная тень */
+      transition: var(--transition);
+    }
+
+    .greeting-badge i {
+      color: var(--accent-glow);
+      font-size: 1.2rem;
+      text-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* ----- СТАТИСТИКА ДНЯ (деталь 7: три карточки с подсветкой) ----- */
+    .stats-row {
+      display: flex;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      flex: 1;
+      min-width: 120px;
+      padding: 1rem 1.2rem;
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1px solid var(--surface-border);
+      box-shadow: 0 8px 20px -8px black, inset 0 1px 0 rgba(255, 255, 255, 0.03); /* деталь 8: объёмная тень */
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 16px rgba(74, 158, 255, 0.25), 0 8px 20px -8px black;
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(74, 158, 255, 0.1);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--accent-glow);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      box-shadow: inset 0 0 12px rgba(74, 158, 255, 0.2);
+    }
+
+    .stat-info .stat-value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: white;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .stat-info .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    /* ----- ФОРМА ДОБАВЛЕНИЯ ЗАДАЧИ (деталь 9: стеклянный эффект) ----- */
+    .add-task-section {
+      background: rgba(30, 38, 50, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 2.5rem;
+      padding: 0.8rem 0.8rem 0.8rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 12px 30px -12px black, inset 0 1px 2px rgba(255, 255, 255, 0.05); /* деталь 10: вкладка */
+    }
+
+    .add-task-section i {
+      color: var(--accent-glow);
+      font-size: 1.3rem;
+      filter: drop-shadow(0 0 5px var(--accent-glow));
+    }
+
+    .add-task-section input {
+      background: transparent;
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 1.1rem;
+      padding: 0.9rem 0;
+      color: var(--text-primary);
+      font-weight: 400;
+    }
+
+    .add-task-section input::placeholder {
+      color: #4f5f70;
+      font-weight: 300;
+      letter-spacing: 0.2px;
+    }
+
+    .add-task-section button {
+      background: linear-gradient(145deg, #1d4f9c, #0b2d5c);
+      border: none;
+      border-radius: 3rem;
+      padding: 0.9rem 2rem;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid rgba(74, 158, 255, 0.5);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(74, 158, 255, 0.4); /* деталь 11: кнопка со свечением */
+      letter-spacing: 0.3px;
+    }
+
+    .add-task-section button:hover {
+      background: linear-gradient(145deg, #2b6ed7, #104080);
+      box-shadow: 0 0 24px var(--accent-glow), 0 8px 18px black;
+      transform: scale(1.02);
+    }
+
+    .add-task-section button i {
+      color: white;
+      font-size: 0.95rem;
+      filter: none;
+    }
+
+    /* ----- СЕТКА ЗАДАЧ (деталь 12: стильные карточки с чекбоксами) ----- */
+    .tasks-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .task-item {
+      background: var(--bg-card);
+      border-radius: 2.2rem;
+      padding: 1.2rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      border: 1px solid var(--surface-border);
+      box-shadow: 0 12px 24px -12px black, inset 0 1px 0 rgba(255, 255, 255, 0.02); /* деталь 13 */
+      transition: all 0.2s ease;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .task-item:hover {
+      border-color: rgba(74, 158, 255, 0.5);
+      box-shadow: 0 0 18px rgba(74, 158, 255, 0.2), 0 12px 24px -12px black; /* деталь 14: подсветка при наведении */
+      background: #17202b;
+    }
+
+    /* Кастомный чекбокс (деталь 15: стилизованный чекбокс) */
+    .task-check {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      border: 2px solid #3e4d5f;
+      background: #0f141c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      flex-shrink: 0;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+    }
+
+    .task-check.completed {
+      background: var(--accent-soft);
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .task-check i {
+      font-size: 0.9rem;
+      color: white;
+      opacity: 0;
+      transition: 0.15s;
+      text-shadow: 0 0 8px white;
+    }
+
+    .task-check.completed i {
+      opacity: 1;
+    }
+
+    .task-text {
+      flex: 1;
+      font-size: 1.1rem;
+      font-weight: 450;
+      color: var(--text-primary);
+      word-break: break-word;
+      transition: var(--transition);
+    }
+
+    .task-text.completed {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    /* Время/приоритет — кастомные метки (деталь 16) */
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .task-meta i {
+      margin-right: 4px;
+      color: var(--accent-glow);
+      filter: drop-shadow(0 0 4px var(--accent-glow));
+    }
+
+    .task-delete {
+      background: transparent;
+      border: none;
+      color: #6b7d91;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 12px;
+      transition: var(--transition);
+      opacity: 0.6;
+    }
+
+    .task-delete:hover {
+      background: rgba(255, 77, 109, 0.15);
+      color: var(--danger);
+      opacity: 1;
+      box-shadow: 0 0 14px rgba(255, 77, 109, 0.5); /* деталь 17: свечение удаления */
+    }
+
+    /* ----- ПУСТОЕ СОСТОЯНИЕ (деталь 18: декоративный блок) ----- */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: rgba(20, 26, 36, 0.5);
+      border-radius: 3rem;
+      border: 1px dashed #2e3a4a;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .empty-state i {
+      font-size: 3.5rem;
+      color: #2e3f55;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 12px #1e2e40);
+    }
+
+    .empty-state p {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+    }
+
+    /* ----- ФУТЕР С КАСТОМНОЙ ЦИТАТОЙ (деталь 19: дополнительная деталь) ----- */
+    .footer-note {
+      margin-top: 2.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #4a5b6e;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      border-top: 1px solid #1e2632;
+      padding-top: 1.6rem;
+    }
+
+    .footer-note span i {
+      color: var(--accent-soft);
+      margin-right: 6px;
+      filter: drop-shadow(0 0 4px #4a9eff);
+    }
+
+    /* Адаптив */
+    @media (max-width: 700px) {
+      .app-wrapper { padding: 1.5rem; }
+      .title-group h1 { font-size: 1.8rem; }
+      .add-task-section { flex-wrap: wrap; padding: 1rem; }
+      .add-task-section button { width: 100%; justify-content: center; }
+      .task-item { padding: 1rem 1.2rem; }
+      .task-meta { display: none; } /* скрываем мета на телефоне для чистоты */
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Шапка с приветствием (детали 2,3,4,5) -->
+    <div class="header-section">
+      <div class="title-group">
+        <h1>РАСПОРЯДОК ДНЯ</h1>
+        <div class="subhead">
+          <i class="fas fa-bolt"></i>
+          <span>планируй · фокусируйся · достигай</span>
+        </div>
+      </div>
+      <div class="greeting-badge">
+        <i class="fas fa-moon"></i>
+        <span id="greetingText">Добрый вечер, планировщик</span>
+      </div>
+    </div>
+
+    <!-- Статистика (деталь 7) -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-list-check"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="totalTasks">0</div>
+          <div class="stat-label">всего задач</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="completedTasks">0</div>
+          <div class="stat-label">выполнено</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-info">
+          <div class="stat-value" id="pendingTasks">0</div>
+          <div class="stat-label">в процессе</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Форма добавления задачи (деталь 9,10,11) -->
+    <div class="add-task-section">
+      <i class="fas fa-pen-fancy"></i>
+      <input type="text" id="taskInput" placeholder="Что запланируем? ..." maxlength="90">
+      <button id="addTaskBtn"><i class="fas fa-plus-circle"></i> Добавить</button>
+    </div>
+
+    <!-- Контейнер для задач (детали 12–18) -->
+    <div id="tasksContainer" class="tasks-grid">
+      <!-- динамические задачи -->
+    </div>
+
+    <!-- Футер с кастомной фразой (деталь 19) -->
+    <div class="footer-note">
+      <span><i class="fas fa-brain"></i> продуктивность — это привычка</span>
+      <span><i class="fas fa-star"></i> 18 деталей + кастом</span>
+    </div>
+  </div>
+  <script>
+    (function(){
+      // ---------- КАСТОМНЫЙ ПРИВЕТСТВЕННЫЙ ТЕКСТ В ЗАВИСИМОСТИ ОТ ВРЕМЕНИ (деталь 5) ----------
+      const greetingEl = document.getElementById('greetingText');
+      const hour = new Date().getHours();
+      let greeting = '';
+      if (hour < 6) greeting = 'Доброй ночи, планировщик';
+      else if (hour < 12) greeting = 'Доброе утро, планировщик';
+      else if (hour < 18) greeting = 'Добрый день, планировщик';
+      else greeting = 'Добрый вечер, планировщик';
+      greetingEl.textContent = greeting;
+
+      // ---------- ДАННЫЕ (задачи) ----------
+      let tasks = [
+        { id: Date.now() + 1, text: 'Спланировать встречи на день', completed: false, category: 'работа' },
+        { id: Date.now() + 2, text: 'Сделать зарядку 15 минут', completed: false, category: 'здоровье' },
+        { id: Date.now() + 3, text: 'Прочитать главу книги', completed: false, category: 'развитие' },
+        { id: Date.now() + 4, text: 'Выпить 2 литра воды', completed: false, category: 'здоровье' }
+      ];
+
+      // DOM элементы
+      const tasksContainer = document.getElementById('tasksContainer');
+      const taskInput = document.getElementById('taskInput');
+      const addBtn = document.getElementById('addTaskBtn');
+      const totalSpan = document.getElementById('totalTasks');
+      const completedSpan = document.getElementById('completedTasks');
+      const pendingSpan = document.getElementById('pendingTasks');
+
+      // ---------- ФУНКЦИЯ ОБНОВЛЕНИЯ СТАТИСТИКИ (деталь 7) ----------
+      function updateStats() {
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.completed).length;
+        const pending = total - completed;
+        totalSpan.textContent = total;
+        completedSpan.textContent = completed;
+        pendingSpan.textContent = pending;
+      }
+
+      // ---------- ОТРИСОВКА ЗАДАЧ (со всеми деталями) ----------
+      function renderTasks() {
+        if (tasks.length === 0) {
+          // Деталь 18: пустое состояние с иконкой
+          tasksContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-clipboard-list"></i>
+              <p>Пока нет задач. Добавь первую!</p>
+            </div>
+          `;
+          updateStats();
+          return;
+        }
+
+        let html = '';
+        tasks.forEach(task => {
+          // кастомные метки: иконка в зависимости от категории (деталь 16)
+          let categoryIcon = '';
+          if (task.category === 'работа') categoryIcon = '<i class="fas fa-briefcase"></i>';
+          else if (task.category === 'здоровье') categoryIcon = '<i class="fas fa-heartbeat"></i>';
+          else categoryIcon = '<i class="fas fa-lightbulb"></i>';
+
+          // деталь 12-17: каждая карточка задачи с чекбоксом, удалением, тенью и подсветкой
+          html += `
+            <div class="task-item" data-id="${task.id}">
+              <div class="task-check ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                <i class="fas fa-check"></i>
+              </div>
+              <div class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.text)}</div>
+              <div class="task-meta">
+                ${categoryIcon}
+                <span>${task.category}</span>
+              </div>
+              <button class="task-delete" data-id="${task.id}" title="Удалить задачу"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          `;
+        });
+
+        tasksContainer.innerHTML = html;
+        updateStats();
+
+        // ----- НАВЕШИВАЕМ ОБРАБОТЧИКИ НА ЧЕКБОКСЫ И УДАЛЕНИЕ -----
+        document.querySelectorAll('.task-check').forEach(check => {
+          check.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = Number(check.dataset.id);
+            toggleTask(id);
+          });
+        });
+
+        document.querySelectorAll('.task-delete').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = Number(btn.dataset.id);
+            deleteTask(id);
+          });
+        });
+      }
+
+      // ----- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ЗАЩИТЫ ОТ XSS -----
+      function escapeHtml(unsafe) {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // ----- ПЕРЕКЛЮЧЕНИЕ СТАТУСА ЗАДАЧИ (деталь 15) -----
+      function toggleTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+          task.completed = !task.completed;
+          renderTasks(); // перерисовываем полностью, чтобы обновить классы и статистику
+        }
+      }
+
+      // ----- УДАЛЕНИЕ ЗАДАЧИ (деталь 17: свечение при наведении уже в CSS) -----
+      function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        renderTasks();
+      }
+
+      // ----- ДОБАВЛЕНИЕ ЗАДАЧИ (кастомный ввод от пользователя) -----
+      function addTask() {
+        const text = taskInput.value.trim();
+        if (text === '') {
+          // небольшая визуальная обратная связь — подсветим поле
+          taskInput.style.transition = '0.1s';
+          taskInput.style.boxShadow = '0 0 0 3px rgba(255, 77, 109, 0.6)';
+          setTimeout(() => {
+            taskInput.style.boxShadow = 'none';
+          }, 250);
+          return;
+        }
+
+        // Кастомный выбор категории — простая эвристика, чтобы добавить индивидуальности
+        let category = 'развитие';
+        const lower = text.toLowerCase();
+        if (lower.includes('работ') || lower.includes('встреч') || lower.includes('звонок') || lower.includes('проект')) category = 'работа';
+        else if (lower.includes('спорт') || lower.includes('зарядк') || lower.includes('вод') || lower.includes('бег') || lower.includes('здоров')) category = 'здоровье';
+        else if (lower.includes('книг') || lower.includes('учеб') || lower.includes('курс') || lower.includes('читать')) category = 'развитие';
+        else category = 'развитие';
+
+        const newTask = {
+          id: Date.now(),
+          text: text,
+          completed: false,
+          category: category
+        };
+
+        tasks.push(newTask);
+        taskInput.value = '';
+        renderTasks();
+        taskInput.focus();
+      }
+
+      // ----- ИНИЦИАЛИЗАЦИЯ И СОБЫТИЯ -----
+      addBtn.addEventListener('click', addTask);
+      taskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addTask();
+      });
+
+      // Первая отрисовка
+      renderTasks();
+    })();
+  </script>
+</body>
+      </html>
