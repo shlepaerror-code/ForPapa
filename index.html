@@ -18,43 +18,38 @@
     <!-- ШАПКА -->
     <header class="app-header">
       <div class="brand">
-        <div class="brand-logo"><i class="fas fa-rocket"></i></div>
+        <div class="brand-logo"><i class="fas fa-bolt"></i></div>
         <div>
           <h1>MEGA PLAN</h1>
-          <p class="brand-sub">Твой день под контролем</p>
+          <p class="brand-sub">Управляй своим временем</p>
         </div>
       </div>
       <div class="header-right">
-        <div class="clock">
-          <i class="fas fa-clock"></i>
-          <span id="clockTime">00:00</span>
-        </div>
-        <button class="icon-btn" id="themeToggle" title="Сменить акцент"><i class="fas fa-palette"></i></button>
-        <button class="icon-btn" id="settingsBtn" title="Настройки"><i class="fas fa-cog"></i></button>
+        <div class="clock" id="clock">00:00</div>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-palette"></i></button>
       </div>
     </header>
 
     <!-- ВКЛАДКИ -->
     <nav class="tabs">
-      <button class="tab active" data-tab="day"><i class="fas fa-sun"></i> День</button>
+      <button class="tab active" data-tab="day"><i class="fas fa-sun"></i> Задачи</button>
       <button class="tab" data-tab="stats"><i class="fas fa-chart-pie"></i> Статистика</button>
       <button class="tab" data-tab="pomodoro"><i class="fas fa-stopwatch"></i> Таймер</button>
-      <button class="tab" data-tab="notes"><i class="fas fa-sticky-note"></i> Заметки</button>
       <button class="tab" data-tab="habits"><i class="fas fa-fire"></i> Привычки</button>
     </nav>
 
-    <!-- ВКЛАДКА: ДЕНЬ -->
+    <!-- ВКЛАДКА: ЗАДАЧИ -->
     <section class="tab-panel active" id="tab-day">
       <div class="stats-row">
         <div class="stat-card">
-          <div class="stat-icon"><i class="fas fa-list-check"></i></div>
+          <div class="stat-icon"><i class="fas fa-list"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="statTotal">0</div>
             <div class="stat-label">Всего</div>
           </div>
         </div>
         <div class="stat-card">
-          <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+          <div class="stat-icon green"><i class="fas fa-check"></i></div>
           <div class="stat-info">
             <div class="stat-value" id="statDone">0</div>
             <div class="stat-label">Готово</div>
@@ -79,13 +74,13 @@
           <input id="taskInput" type="text" placeholder="Что нужно сделать?" maxlength="100">
         </div>
         <div class="input-row-mobile">
-          <input id="taskTime" type="time" title="Время">
+          <input id="taskTime" type="time">
           <select id="taskPriority">
             <option value="high">🔴 Важно</option>
             <option value="mid" selected>🟡 Средне</option>
             <option value="low">🟢 Легко</option>
           </select>
-          <button id="addBtn" class="btn-primary"><i class="fas fa-plus"></i></button>
+          <button id="addBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
         </div>
       </div>
 
@@ -95,11 +90,11 @@
           <input id="searchInput" type="text" placeholder="Поиск...">
         </div>
         <select id="filterStatus">
-          <option value="all">Все</option>
+          <option value="all">Все задачи</option>
           <option value="active">В работе</option>
           <option value="done">Выполненные</option>
         </select>
-        <button id="clearDone" class="btn-ghost" title="Очистить выполненные"><i class="fas fa-broom"></i></button>
+        <button id="clearDone" class="btn-ghost" title="Очистить"><i class="fas fa-broom"></i></button>
       </div>
 
       <div id="tasksContainer" class="tasks-list"></div>
@@ -107,16 +102,12 @@
 
     <!-- ВКЛАДКА: СТАТИСТИКА -->
     <section class="tab-panel" id="tab-stats">
-      <h2 class="section-title"><i class="fas fa-chart-pie"></i> Аналитика</h2>
+      <h2 class="section-title"><i class="fas fa-chart-pie"></i> Аналитика дня</h2>
       <div class="stats-blocks">
         <div class="chart-card">
           <h3>Выполнение</h3>
           <div class="donut" id="donutChart"></div>
           <p class="chart-caption" id="donutCaption">0 из 0</p>
-        </div>
-        <div class="chart-card">
-          <h3>По приоритетам</h3>
-          <div id="priorityBars" class="bars"></div>
         </div>
         <div class="chart-card">
           <h3>🔥 Серия дней</h3>
@@ -141,27 +132,7 @@
           <button id="pomoStart" class="btn-primary"><i class="fas fa-play"></i> Старт</button>
           <button id="pomoReset" class="btn-ghost"><i class="fas fa-rotate-left"></i> Сброс</button>
         </div>
-        <div class="pomo-modes">
-          <button data-min="25" class="pomo-mode active">25м</button>
-          <button data-min="15" class="pomo-mode">15м</button>
-          <button data-min="5" class="pomo-mode">5м</button>
-        </div>
       </div>
-    </section>
-
-    <!-- ВКЛАДКА: ЗАМЕТКИ -->
-    <section class="tab-panel" id="tab-notes">
-      <h2 class="section-title"><i class="fas fa-sticky-note"></i> Заметки</h2>
-      <div class="add-task">
-        <div class="input-row">
-          <i class="fas fa-pen"></i>
-          <input id="noteInput" type="text" placeholder="Быстрая мысль...">
-        </div>
-        <div class="input-row-mobile">
-          <button id="noteAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
-        </div>
-      </div>
-      <div id="notesList" class="notes-list"></div>
     </section>
 
     <!-- ВКЛАДКА: ПРИВЫЧКИ -->
@@ -179,96 +150,15 @@
       <div id="habitsList" class="habits-list"></div>
     </section>
 
-    <!-- МОДАЛКА НАСТРОЕК -->
-    <div class="modal" id="settingsModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2><i class="fas fa-cog"></i> Настройки</h2>
-          <button id="closeSettings" class="icon-btn"><i class="fas fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-          <div class="setting-item">
-            <label>Цвет акцента</label>
-            <div class="accent-picker">
-              <button class="accent-btn" data-accent="#4a9eff" style="background:#4a9eff"></button>
-              <button class="accent-btn" data-accent="#a855f7" style="background:#a855f7"></button>
-              <button class="accent-btn" data-accent="#22c55e" style="background:#22c55e"></button>
-              <button class="accent-btn" data-accent="#f59e0b" style="background:#f59e0b"></button>
-            </div>
-          </div>
-          <div class="setting-item">
-            <label>Звуки</label>
-            <input type="checkbox" id="soundToggle" checked>
-          </div>
-          <div class="setting-item">
-            <label>Анимации</label>
-            <input type="checkbox" id="animToggle" checked>
-          </div>
-          <button id="exportBtn" class="btn-primary"><i class="fas fa-download"></i> Экспорт</button>
-          <button id="resetBtn" class="btn-danger"><i class="fas fa-trash"></i> Сброс</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- ПОДВАЛ (КАСТОМ) -->
+    <footer class="app-footer">
+      Сделано для Кавчака Александра Вячеславовича
+    </footer>
   </div>
 
   <script src="script.js"></script>
 </body>
-</html>ut type="file" id="importFile" accept=".json" hidden />
-          <button id="resetBtn" class="btn-danger"><i class="fas fa-trash"></i> Сбросить всё</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>rder-radius: 3rem;
-      border: 1px dashed #2e3a4a;
-      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
-    }
-
-    .empty-state i {
-      font-size: 3.5rem;
-      color: #2e3f55;
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 0 12px #1e2e40);
-    }
-
-    .empty-state p {
-      color: var(--text-secondary);
-      font-size: 1.2rem;
-    }
-
-    /* ----- ФУТЕР С КАСТОМНОЙ ЦИТАТОЙ (деталь 19: дополнительная деталь) ----- */
-    .footer-note {
-      margin-top: 2.5rem;
-      font-size: 0.9rem;
-      text-align: center;
-      color: #4a5b6e;
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      border-top: 1px solid #1e2632;
-      padding-top: 1.6rem;
-    }
-
-    .footer-note span i {
-      color: var(--accent-soft);
-      margin-right: 6px;
-      filter: drop-shadow(0 0 4px #4a9eff);
-    }
-
-    /* Адаптив */
-    @media (max-width: 700px) {
-      .app-wrapper { padding: 1.5rem; }
-      .title-group h1 { font-size: 1.8rem; }
-      .add-task-section { flex-wrap: wrap; padding: 1rem; }
-      .add-task-section button { width: 100%; justify-content: center; }
-      .task-item { padding: 1rem 1.2rem; }
+</html>m; }
       .task-meta { display: none; } /* скрываем мета на телефоне для чистоты */
     }
   </style>
