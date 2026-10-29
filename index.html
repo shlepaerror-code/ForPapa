@@ -20,7 +20,12 @@
           <p class="brand-sub">Управляй временем</p>
         </div>
       </div>
-      <div class="clock" id="clock">00:00:00</div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button id="themeToggle" style="background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--accent); width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
+          <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+        <div class="clock" id="clock">00:00:00</div>
+      </div>
     </header>
 
     <nav class="tabs">
@@ -36,36 +41,22 @@
       <div class="stats-row">
         <div class="stat-card glass-panel">
           <div class="stat-icon"><i class="fas fa-list"></i></div>
-          <div class="stat-info">
-            <div class="stat-value" id="statTotal">0</div>
-            <div class="stat-label">Всего</div>
-          </div>
+          <div class="stat-info"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Всего</div></div>
         </div>
         <div class="stat-card glass-panel">
           <div class="stat-icon green"><i class="fas fa-check"></i></div>
-          <div class="stat-info">
-            <div class="stat-value" id="statDone">0</div>
-            <div class="stat-label">Готово</div>
-          </div>
+          <div class="stat-info"><div class="stat-value" id="statDone">0</div><div class="stat-label">Готово</div></div>
         </div>
         <div class="stat-card glass-panel">
           <div class="stat-icon purple"><i class="fas fa-percent"></i></div>
-          <div class="stat-info">
-            <div class="stat-value" id="statPercent">0%</div>
-            <div class="stat-label">Прогресс</div>
-          </div>
+          <div class="stat-info"><div class="stat-value" id="statPercent">0%</div><div class="stat-label">Прогресс</div></div>
         </div>
       </div>
 
-      <div class="progress-wrap glass-panel">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      </div>
+      <div class="progress-wrap glass-panel"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div></div>
 
       <div class="add-task glass-panel">
-        <div class="input-row">
-          <i class="fas fa-pen-fancy"></i>
-          <input id="taskInput" type="text" placeholder="Что нужно сделать?" maxlength="100">
-        </div>
+        <div class="input-row"><i class="fas fa-pen-fancy"></i><input id="taskInput" type="text" placeholder="Что нужно сделать?" maxlength="100"></div>
         <div class="input-row-mobile">
           <input id="taskTime" type="time">
           <select id="taskPriority">
@@ -78,10 +69,7 @@
       </div>
 
       <div class="filters">
-        <div class="search-box glass-panel">
-          <i class="fas fa-search"></i>
-          <input id="searchInput" type="text" placeholder="Поиск...">
-        </div>
+        <div class="search-box glass-panel"><i class="fas fa-search"></i><input id="searchInput" type="text" placeholder="Поиск..."></div>
         <select id="filterStatus" class="glass-panel">
           <option value="all">Все</option>
           <option value="active">В работе</option>
@@ -128,13 +116,8 @@
     <section class="tab-panel" id="tab-habits">
       <h2 class="section-title"><i class="fas fa-fire"></i> Привычки</h2>
       <div class="add-task glass-panel">
-        <div class="input-row">
-          <i class="fas fa-star"></i>
-          <input id="habitInput" type="text" placeholder="Новая привычка...">
-        </div>
-        <div class="input-row-mobile">
-          <button id="habitAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
-        </div>
+        <div class="input-row"><i class="fas fa-star"></i><input id="habitInput" type="text" placeholder="Новая привычка..."></div>
+        <div class="input-row-mobile"><button id="habitAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button></div>
       </div>
       <div id="habitsList" class="habits-list"></div>
     </section>
