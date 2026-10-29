@@ -3,8 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>MEGA PLAN · Планировщик</title>
+  <title>MEGA PLAN</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- СКРИПТ СБРОСА КЭША (ЧТОБЫ СТАРЫЙ КОД НЕ МЕШАЛ) -->
+  <script>
+    (function() {
+      var v = 'v=10'; // Версия кэша
+      if (window.location.search.indexOf(v) === -1) {
+        var url = window.location.pathname + '?' + v;
+        window.location.replace(url);
+      }
+    })();
+  </script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
     :root {
@@ -109,6 +121,130 @@
 
     .empty-state { text-align: center; padding: 40px 20px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border); border-radius: 20px; margin-top: 10px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
     .empty-state .icon-wrapper { width: 70px; height: 70px; margin: 0 auto 15px; background: rgba(157, 78, 221, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent); box-shadow: 0 0 20px rgba(157, 78, 221, 0.2), inset 0 0 15px rgba(157, 78, 221, 0.3); }
+    .empty-state p { color: var(--text); font-size: 1rem; font-weight: 500; margin-bottom: 5px; }
+    .empty-state span { color: var(--text-dim); font-size: 0.8rem; }
+
+    .stats-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .chart-card { padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+    .chart-card h3 { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px; }
+    .donut { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto; background: conic-gradient(var(--accent) 0%, rgba(0,0,0,0.3) 0%); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.8); }
+    .donut::after { content: ''; position: absolute; inset: 12px; border-radius: 50%; background: var(--bg-card); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+    .chart-caption { margin-top: 10px; font-size: 0.8rem; color: var(--text-dim); }
+    .streak { font-size: 2.5rem; font-weight: 800; color: var(--warning); text-shadow: 0 0 15px rgba(255, 170, 51, 0.4), 0 5px 10px rgba(0,0,0,0.5); }
+
+    .pomodoro-wrap { padding: 30px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .pomo-ring { position: relative; width: 200px; height: 200px; margin-bottom: 25px; }
+    .pomo-ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+    .ring-bg { fill: none; stroke: rgba(0,0,0,0.4); stroke-width: 8; }
+    .ring-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 565.5; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; filter: drop-shadow(0 0 10px var(--accent)); }
+    .pomo-time { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; font-weight: 700; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+    .pomo-controls { display: flex; gap: 10px; }
+
+    .habits-list { display: flex; flex-direction: column; gap: 10px; }
+    .habit { padding: 15px; position: relative; }
+    .habit p { font-size: 0.95rem; margin-bottom: 10px; word-break: break-word; padding-right: 20px; }
+    .habit button.del-habit { background: transparent; border: none; color: var(--danger); cursor: pointer; position: absolute; top: 15px; right: 15px; font-size: 1rem; }
+    .habit-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .habit-btns button { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+    .habit-btns button.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow), inset 0 1px 2px rgba(255,255,255,0.3); }
+
+    .placeholder-panel { padding: 40px 20px; text-align: center; }
+    .placeholder-panel i { font-size: 3rem; color: var(--accent); margin-bottom: 15px; opacity: 0.8; text-shadow: 0 0 20px var(--accent-glow); }
+    .placeholder-panel p { color: var(--text-dim); }
+    
+    .settings-list { display: flex; flex-direction: column; gap: 12px; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+    .setting-row span { font-size: 0.95rem; }
+    .toggle { width: 44px; height: 24px; background: rgba(0,0,0,0.6); border-radius: 12px; position: relative; cursor: pointer; border: 1px solid var(--border); box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+    .toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: var(--text-dim); border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .toggle.on { background: var(--accent); border-color: var(--accent); }
+    .toggle.on::after { left: 22px; background: #fff; box-shadow: 0 0 10px #fff; }
+
+    .app-footer { margin-top: 40px; text-align: center; font-size: 0.8rem; color: var(--text-dim); padding: 20px 0; border-top: 1px solid var(--border); letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="app">
+    <header class="app-header glass-panel">
+      <div class="brand">
+        <div class="brand-logo"><i class="fas fa-bolt"></i></div>
+        <div>
+          <h1>MEGA PLAN</h1>
+          <p class="brand-sub">Управляй временем</p>
+        </div>
+      </div>
+      <div class="clock" id="clock">00:00:00</div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="day"><i class="fas fa-sun"></i> Задачи</button>
+      <button class="tab" data-tab="stats"><i class="fas fa-chart-pie"></i> Статистика</button>
+      <button class="tab" data-tab="pomodoro"><i class="fas fa-stopwatch"></i> Таймер</button>
+      <button class="tab" data-tab="habits"><i class="fas fa-fire"></i> Привычки</button>
+      <button class="tab" data-tab="calendar"><i class="fas fa-calendar-alt"></i> Календарь</button>
+      <button class="tab" data-tab="settings"><i class="fas fa-cog"></i> Настройки</button>
+    </nav>
+
+    <section class="tab-panel active" id="tab-day">
+      <div class="stats-row">
+        <div class="stat-card glass-panel"><div class="stat-icon"><i class="fas fa-list"></i></div><div class="stat-info"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Всего</div></div></div>
+        <div class="stat-card glass-panel"><div class="stat-icon green"><i class="fas fa-check"></i></div><div class="stat-info"><div class="stat-value" id="statDone">0</div><div class="stat-label">Готово</div></div></div>
+        <div class="stat-card glass-panel"><div class="stat-icon purple"><i class="fas fa-percent"></i></div><div class="stat-info"><div class="stat-value" id="statPercent">0%</div><div class="stat-label">Прогресс</div></div></div>
+      </div>
+      <div class="progress-wrap glass-panel"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div></div>
+      <div class="add-task glass-panel">
+        <div class="input-row"><i class="fas fa-pen-fancy"></i><input id="taskInput" type="text" placeholder="Что нужно сделать?" maxlength="100"></div>
+        <div class="input-row-mobile">
+          <input id="taskTime" type="time">
+          <select id="taskPriority"><option value="high">🔴 Важно</option><option value="mid" selected>🟡 Средне</option><option value="low">🟢 Легко</option></select>
+          <button id="addBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
+        </div>
+      </div>
+      <div class="filters">
+        <div class="search-box glass-panel"><i class="fas fa-search"></i><input id="searchInput" type="text" placeholder="Поиск..."></div>
+        <select id="filterStatus" class="glass-panel"><option value="all">Все</option><option value="active">В работе</option><option value="done">Готово</option></select>
+        <button id="clearDone" class="btn-ghost glass-panel"><i class="fas fa-broom"></i></button>
+      </div>
+      <div id="tasksContainer" class="tasks-list"></div>
+    </section>
+
+    <section class="tab-panel" id="tab-stats">
+      <h2 class="section-title"><i class="fas fa-chart-pie"></i> Аналитика</h2>
+      <div class="stats-blocks">
+        <div class="chart-card glass-panel"><h3>Выполнение</h3><div class="donut" id="donutChart"></div><p class="chart-caption" id="donutCaption">0 из 0</p></div>
+        <div class="chart-card glass-panel"><h3>🔥 Серия</h3><div class="streak" id="streakBox">0</div></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-pomodoro">
+      <h2 class="section-title"><i class="fas fa-stopwatch"></i> Помодоро</h2>
+      <div class="pomodoro-wrap glass-panel">
+        <div class="pomo-ring"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" class="ring-bg"/><circle cx="100" cy="100" r="90" class="ring-fg" id="pomoRing"/></svg><div class="pomo-time" id="pomoTime">25:00</div></div>
+        <div class="pomo-controls"><button id="pomoStart" class="btn-primary"><i class="fas fa-play"></i> Старт</button><button id="pomoReset" class="btn-ghost"><i class="fas fa-rotate-left"></i> Сброс</button></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-habits">
+      <h2 class="section-title"><i class="fas fa-fire"></i> Привычки</h2>
+      <div class="add-task glass-panel">
+        <div class="input-row"><i class="fas fa-star"></i><input id="habitInput" type="text" placeholder="Новая привычка..."></div>
+        <div class="input-row-mobile"><button id="habitAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button></div>
+      </div>
+      <div id="habitsList" class="habits-list"></div>
+    </section>
+
+    <section class="tab-panel" id="tab-calendar">
+      <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Календарь</h2>
+      <div class="glass-panel placeholder-panel"><i class="fas fa-calendar-day"></i><p>Календарь на месяц</p><p style="font-size: 0.8rem; margin-top: 10px; opacity: 0.6;">(Скоро)</p></div>
+    </section>
+
+    <section class="tab-panel" id="tab-settings">
+      <h2 class="section-title"><i class="fas fa-cog"></i> Настройки</h2>
+      <div class="settings-list">
+        <div class="setting-row glass-panel"><span>Звуки</span><div class="toggle on" id="toggleSound"></d { width: 70px; height: 70px; margin: 0 auto 15px; background: rgba(157, 78, 221, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--accent); box-shadow: 0 0 20px rgba(157, 78, 221, 0.2), inset 0 0 15px rgba(157, 78, 221, 0.3); }
     .empty-state p { color: var(--text); font-size: 1rem; font-weight: 500; margin-bottom: 5px; }
     .empty-state span { color: var(--text-dim); font-size: 0.8rem; }
 
