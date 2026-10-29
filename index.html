@@ -1,363 +1,182 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ТЁМНЫЙ ПЛАН · распорядок дня</title>
-  <!-- Font Awesome иконки (для деталей 5, 8, 14, 17) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    /* ----- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ И ТЁМНАЯ ТЕМА ----- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEGA PLAN · Распорядок дня</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
 
-    :root {
-      --bg-deep: #0b0e14;
-      --bg-card: #141a24;
-      --bg-elevated: #1e2632;
-      --surface-border: #2c3542;
-      --text-primary: #e8edf5;
-      --text-secondary: #9aa9bb;
-      --accent-glow: #4a9eff;
-      --accent-soft: #2b6ed7;
-      --success: #2ed573;
-      --warning: #ffaa33;
-      --danger: #ff4d6d;
-      --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(74, 158, 255, 0.15);
-      --shadow-glow: 0 0 18px rgba(74, 158, 255, 0.35);
-      --transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-    }
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo"><i class="fas fa-rocket"></i></div>
+        <div>
+          <h1>MEGA PLAN</h1>
+          <p class="brand-sub">Твой день под контролем</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="clock"><i class="fas fa-clock"></i> <span id="clockTime">00:00:00</span> <span id="clockDate" class="clock-date"></span></div>
+        <button class="icon-btn" id="themeToggle" title="Сменить акцент"><i class="fas fa-palette"></i></button>
+        <button class="icon-btn" id="settingsBtn" title="Настройки"><i class="fas fa-cog"></i></button>
+      </div>
+    </header>
 
-    body {
-      background: radial-gradient(circle at 20% 10%, #16202c, #0b0e14 90%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 2rem 1.5rem;
-      color: var(--text-primary);
-      letter-spacing: 0.01em;
-    }
+    <nav class="tabs">
+      <button class="tab active" data-tab="day"><i class="fas fa-sun"></i> День</button>
+      <button class="tab" data-tab="week"><i class="fas fa-calendar-week"></i> Неделя</button>
+      <button class="tab" data-tab="stats"><i class="fas fa-chart-simple"></i> Статистика</button>
+      <button class="tab" data-tab="pomodoro"><i class="fas fa-stopwatch"></i> Помодоро</button>
+      <button class="tab" data-tab="notes"><i class="fas fa-sticky-note"></i> Заметки</button>
+      <button class="tab" data-tab="habits"><i class="fas fa-fire"></i> Привычки</button>
+    </nav>
 
-    /* ----- ОСНОВНАЯ КАРТОЧКА ПРИЛОЖЕНИЯ (деталь 1: массивная тень+свечение) ----- */
-    .app-wrapper {
-      max-width: 1200px;
-      width: 100%;
-      background: rgba(20, 26, 36, 0.75);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 3.5rem;
-      padding: 2.2rem 2.5rem;
-      border: 1px solid rgba(74, 158, 255, 0.2);
-      box-shadow: var(--shadow-lg), inset 0 1px 1px rgba(255, 255, 255, 0.03);
-      transition: var(--transition);
-    }
+    <section class="tab-panel active" id="tab-day">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-list-check"></i></div><div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Всего</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-check-double"></i></div><div><div class="stat-value" id="statDone">0</div><div class="stat-label">Выполнено</div></div></div>
+        <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-hourglass"></i></div><div><div class="stat-value" id="statPending">0</div><div class="stat-label">В работе</div></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-percent"></i></div><div><div class="stat-value" id="statPercent">0%</div><div class="stat-label">Прогресс</div></div></div>
+      </div>
 
-    /* ----- ЗАГОЛОВОК С ГРАДИЕНТОМ (деталь 2) ----- */
-    .header-section {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
+      <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div></div>
 
-    .title-group h1 {
-      font-size: 2.4rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #ffffff 0%, #b3d4ff 80%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      text-shadow: 0 0 20px rgba(74, 158, 255, 0.5); /* деталь 3: свечение текста */
-    }
+      <div class="add-task">
+        <i class="fas fa-pen-fancy"></i>
+        <input id="taskInput" type="text" placeholder="Новая задача... (Enter — добавить)" maxlength="120" />
+        <input id="taskTime" type="time" />
+        <select id="taskPriority">
+          <option value="low">🟢 Низкий</option>
+          <option value="mid" selected>🟡 Средний</option>
+          <option value="high">🔴 Высокий</option>
+        </select>
+        <select id="taskCategory">
+          <option value="work">💼 Работа</option>
+          <option value="health">❤️ Здоровье</option>
+          <option value="study">📚 Учёба</option>
+          <option value="home">🏠 Дом</option>
+          <option value="fun">🎮 Отдых</option>
+        </select>
+        <button id="addBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
+      </div>
 
-    .title-group .subhead {
-      font-size: 1rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 6px;
-    }
+      <div class="filters">
+        <input id="searchInput" type="text" placeholder="🔍 Поиск..." />
+        <select id="filterCategory"><option value="all">Все категории</option><option value="work">Работа</option><option value="health">Здоровье</option><option value="study">Учёба</option><option value="home">Дом</option><option value="fun">Отдых</option></select>
+        <select id="filterStatus"><option value="all">Все</option><option value="active">Активные</option><option value="done">Выполненные</option></select>
+        <select id="sortBy"><option value="default">По умолчанию</option><option value="time">По времени</option><option value="priority">По приоритету</option><option value="alpha">По алфавиту</option></select>
+        <button id="clearDone" class="btn-ghost"><i class="fas fa-broom"></i> Очистить выполненные</button>
+      </div>
 
-    .title-group .subhead i {
-      color: var(--accent-glow);
-      filter: drop-shadow(0 0 6px var(--accent-glow)); /* деталь 4: свечение иконки */
-    }
+      <div id="tasksContainer" class="tasks-list"></div>
 
-    /* ----- КАСТОМНЫЙ ПРИВЕТСТВЕННЫЙ БЛОК (деталь 5) ----- */
-    .greeting-badge {
-      background: rgba(74, 158, 255, 0.12);
-      border: 1px solid rgba(74, 158, 255, 0.35);
-      padding: 0.65rem 1.4rem;
-      border-radius: 60px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 500;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(74, 158, 255, 0.1); /* деталь 6: двойная тень */
-      transition: var(--transition);
-    }
+      <div class="timeline-wrap">
+        <h3><i class="fas fa-stream"></i> Лента дня</h3>
+        <div id="timeline" class="timeline"></div>
+      </div>
+    </section>
 
-    .greeting-badge i {
-      color: var(--accent-glow);
-      font-size: 1.2rem;
-      text-shadow: 0 0 10px var(--accent-glow);
-    }
+    <section class="tab-panel" id="tab-week">
+      <h2 class="section-title"><i class="fas fa-calendar-week"></i> Неделя</h2>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="week-plan">
+        <h3>Планы на неделю</h3>
+        <div class="add-task">
+          <input id="weekInput" type="text" placeholder="Дело на неделю..." />
+          <select id="weekDay"><option value="0">Пн</option><option value="1">Вт</option><option value="2">Ср</option><option value="3">Чт</option><option value="4">Пт</option><option value="5">Сб</option><option value="6">Вс</option></select>
+          <button id="weekAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button>
+        </div>
+        <div id="weekList"></div>
+      </div>
+    </section>
 
-    /* ----- СТАТИСТИКА ДНЯ (деталь 7: три карточки с подсветкой) ----- */
-    .stats-row {
-      display: flex;
-      gap: 1.2rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-    }
+    <section class="tab-panel" id="tab-stats">
+      <h2 class="section-title"><i class="fas fa-chart-simple"></i> Статистика</h2>
+      <div class="stats-blocks">
+        <div class="chart-card"><h3>Прогресс дня</h3><div class="donut" id="donutChart"></div><p class="chart-caption" id="donutCaption">0 из 0</p></div>
+        <div class="chart-card"><h3>По категориям</h3><div id="categoryBars" class="bars"></div></div>
+        <div class="chart-card"><h3>По приоритетам</h3><div id="priorityBars" class="bars"></div></div>
+        <div class="chart-card"><h3>🔥 Серия</h3><div class="streak" id="streakBox">0</div><p class="chart-caption">дней подряд</p></div>
+      </div>
+    </section>
 
-    .stat-card {
-      background: var(--bg-card);
-      flex: 1;
-      min-width: 120px;
-      padding: 1rem 1.2rem;
-      border-radius: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border: 1px solid var(--surface-border);
-      box-shadow: 0 8px 20px -8px black, inset 0 1px 0 rgba(255, 255, 255, 0.03); /* деталь 8: объёмная тень */
-      transition: var(--transition);
-    }
+    <section class="tab-panel" id="tab-pomodoro">
+      <h2 class="section-title"><i class="fas fa-stopwatch"></i> Помодоро</h2>
+      <div class="pomodoro-wrap">
+        <div class="pomo-ring">
+          <svg viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" class="ring-bg"/>
+            <circle cx="100" cy="100" r="90" class="ring-fg" id="pomoRing"/>
+          </svg>
+          <div class="pomo-time" id="pomoTime">25:00</div>
+        </div>
+        <div class="pomo-controls">
+          <button id="pomoStart" class="btn-primary"><i class="fas fa-play"></i> Старт</button>
+          <button id="pomoReset" class="btn-ghost"><i class="fas fa-rotate-left"></i> Сброс</button>
+          <div class="pomo-modes">
+            <button data-min="25" class="pomo-mode active">25м</button>
+            <button data-min="15" class="pomo-mode">15м</button>
+            <button data-min="5" class="pomo-mode">5м</button>
+            <button data-min="50" class="pomo-mode">50м</button>
+          </div>
+        </div>
+        <p class="pomo-info">Сессий сегодня: <strong id="pomoCount">0</strong></p>
+      </div>
+    </section>
 
-    .stat-card:hover {
-      border-color: var(--accent-glow);
-      box-shadow: 0 0 16px rgba(74, 158, 255, 0.25), 0 8px 20px -8px black;
-      transform: translateY(-2px);
-    }
+    <section class="tab-panel" id="tab-notes">
+      <h2 class="section-title"><i class="fas fa-sticky-note"></i> Заметки</h2>
+      <div class="add-task"><input id="noteInput" type="text" placeholder="Новая заметка..." /><button id="noteAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button></div>
+      <div id="notesList" class="notes-list"></div>
+    </section>
 
-    .stat-icon {
-      width: 44px;
-      height: 44px;
-      background: rgba(74, 158, 255, 0.1);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      color: var(--accent-glow);
-      border: 1px solid rgba(74, 158, 255, 0.3);
-      box-shadow: inset 0 0 12px rgba(74, 158, 255, 0.2);
-    }
+    <section class="tab-panel" id="tab-habits">
+      <h2 class="section-title"><i class="fas fa-fire"></i> Привычки</h2>
+      <div class="add-task"><input id="habitInput" type="text" placeholder="Новая привычка..." /><button id="habitAddBtn" class="btn-primary"><i class="fas fa-plus"></i> Добавить</button></div>
+      <div id="habitsList" class="habits-list"></div>
+    </section>
 
-    .stat-info .stat-value {
-      font-size: 1.7rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: white;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-    }
+    <div class="modal" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header"><h2><i class="fas fa-cog"></i> Настройки</h2><button id="closeSettings" class="icon-btn"><i class="fas fa-xmark"></i></button></div>
+        <div class="modal-body">
+          <div class="setting-item"><label>Акцент</label>
+            <div class="accent-picker">
+              <button class="accent-btn" data-accent="#4a9eff" style="background:#4a9eff"></button>
+              <button class="accent-btn" data-accent="#a855f7" style="background:#a855f7"></button>
+              <button class="accent-btn" data-accent="#22c55e" style="background:#22c55e"></button>
+              <button class="accent-btn" data-accent="#f59e0b" style="background:#f59e0b"></button>
+              <button class="accent-btn" data-accent="#ec4899" style="background:#ec4899"></button>
+              <button class="accent-btn" data-accent="#ef4444" style="background:#ef4444"></button>
+            </div>
+          </div>
+          <div class="setting-item"><label>Звук уведомлений</label><input type="checkbox" id="soundToggle" checked /></div>
+          <div class="setting-item"><label>Анимации</label><input type="checkbox" id="animToggle" checked /></div>
+          <div class="setting-item"><label>Показывать время в ленте</label><input type="checkbox" id="timelineToggle" checked /></div>
+          <div class="setting-item"><label>Компактный вид</label><input type="checkbox" id="compactToggle" /></div>
+          <div class="setting-item"><label>Напоминание за N минут</label><input type="number" id="remindBefore" min="0" max="60" value="10" /></div>
+          <button id="exportBtn" class="btn-primary"><i class="fas fa-download"></i> Экспорт данных</button>
+          <button id="importBtn" class="btn-ghost"><i class="fas fa-upload"></i> Импорт данных</button>
+          <input type="file" id="importFile" accept=".json" hidden />
+          <button id="resetBtn" class="btn-danger"><i class="fas fa-trash"></i> Сбросить всё</button>
+        </div>
+      </div>
+    </div>
 
-    .stat-info .stat-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-secondary);
-    }
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
 
-    /* ----- ФОРМА ДОБАВЛЕНИЯ ЗАДАЧИ (деталь 9: стеклянный эффект) ----- */
-    .add-task-section {
-      background: rgba(30, 38, 50, 0.6);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 2.5rem;
-      padding: 0.8rem 0.8rem 0.8rem 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 2rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 12px 30px -12px black, inset 0 1px 2px rgba(255, 255, 255, 0.05); /* деталь 10: вкладка */
-    }
-
-    .add-task-section i {
-      color: var(--accent-glow);
-      font-size: 1.3rem;
-      filter: drop-shadow(0 0 5px var(--accent-glow));
-    }
-
-    .add-task-section input {
-      background: transparent;
-      border: none;
-      outline: none;
-      flex: 1;
-      font-size: 1.1rem;
-      padding: 0.9rem 0;
-      color: var(--text-primary);
-      font-weight: 400;
-    }
-
-    .add-task-section input::placeholder {
-      color: #4f5f70;
-      font-weight: 300;
-      letter-spacing: 0.2px;
-    }
-
-    .add-task-section button {
-      background: linear-gradient(145deg, #1d4f9c, #0b2d5c);
-      border: none;
-      border-radius: 3rem;
-      padding: 0.9rem 2rem;
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: var(--transition);
-      border: 1px solid rgba(74, 158, 255, 0.5);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(74, 158, 255, 0.4); /* деталь 11: кнопка со свечением */
-      letter-spacing: 0.3px;
-    }
-
-    .add-task-section button:hover {
-      background: linear-gradient(145deg, #2b6ed7, #104080);
-      box-shadow: 0 0 24px var(--accent-glow), 0 8px 18px black;
-      transform: scale(1.02);
-    }
-
-    .add-task-section button i {
-      color: white;
-      font-size: 0.95rem;
-      filter: none;
-    }
-
-    /* ----- СЕТКА ЗАДАЧ (деталь 12: стильные карточки с чекбоксами) ----- */
-    .tasks-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .task-item {
-      background: var(--bg-card);
-      border-radius: 2.2rem;
-      padding: 1.2rem 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      border: 1px solid var(--surface-border);
-      box-shadow: 0 12px 24px -12px black, inset 0 1px 0 rgba(255, 255, 255, 0.02); /* деталь 13 */
-      transition: all 0.2s ease;
-      animation: fadeSlide 0.3s ease;
-    }
-
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .task-item:hover {
-      border-color: rgba(74, 158, 255, 0.5);
-      box-shadow: 0 0 18px rgba(74, 158, 255, 0.2), 0 12px 24px -12px black; /* деталь 14: подсветка при наведении */
-      background: #17202b;
-    }
-
-    /* Кастомный чекбокс (деталь 15: стилизованный чекбокс) */
-    .task-check {
-      width: 26px;
-      height: 26px;
-      border-radius: 10px;
-      border: 2px solid #3e4d5f;
-      background: #0f141c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      flex-shrink: 0;
-      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
-    }
-
-    .task-check.completed {
-      background: var(--accent-soft);
-      border-color: var(--accent-glow);
-      box-shadow: 0 0 14px var(--accent-glow);
-    }
-
-    .task-check i {
-      font-size: 0.9rem;
-      color: white;
-      opacity: 0;
-      transition: 0.15s;
-      text-shadow: 0 0 8px white;
-    }
-
-    .task-check.completed i {
-      opacity: 1;
-    }
-
-    .task-text {
-      flex: 1;
-      font-size: 1.1rem;
-      font-weight: 450;
-      color: var(--text-primary);
-      word-break: break-word;
-      transition: var(--transition);
-    }
-
-    .task-text.completed {
-      text-decoration: line-through;
-      color: var(--text-secondary);
-      opacity: 0.7;
-    }
-
-    /* Время/приоритет — кастомные метки (деталь 16) */
-    .task-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-    }
-
-    .task-meta i {
-      margin-right: 4px;
-      color: var(--accent-glow);
-      filter: drop-shadow(0 0 4px var(--accent-glow));
-    }
-
-    .task-delete {
-      background: transparent;
-      border: none;
-      color: #6b7d91;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 6px 8px;
-      border-radius: 12px;
-      transition: var(--transition);
-      opacity: 0.6;
-    }
-
-    .task-delete:hover {
-      background: rgba(255, 77, 109, 0.15);
-      color: var(--danger);
-      opacity: 1;
-      box-shadow: 0 0 14px rgba(255, 77, 109, 0.5); /* деталь 17: свечение удаления */
-    }
-
-    /* ----- ПУСТОЕ СОСТОЯНИЕ (деталь 18: декоративный блок) ----- */
-    .empty-state {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: rgba(20, 26, 36, 0.5);
-      border-radius: 3rem;
+  <script src="script.js"></script>
+</body>
+</html>rder-radius: 3rem;
       border: 1px dashed #2e3a4a;
       box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
     }
