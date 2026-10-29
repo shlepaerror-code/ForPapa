@@ -1,65 +1,44 @@
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
-// Состояние
-const defaultState = {
-  tasks: [],
-  habits: [],
-  streak: 0,
-  lastDate: null,
-  settings: { accent: '#9d4edd', sound: true }
-};
-
-let state = JSON.parse(localStorage.getItem('megaplan_v4')) || defaultState;
-
-// Сохранение
-const save = () => localStorage.setItem('megaplan_v4', JSON.stringify(state));
-
-// Утилиты
+const defaultState = { tasks: [], habits: [], streak: 0, lastDate: null };
+let state = JSON.parse(localStorage.getItem('megaplan_v6')) || defaultState;
+const save = () => localStorage.setItem('megaplan_v6', JSON.stringify(state));
 const uid = () => Date.now() + Math.floor(Math.random() * 1000);
 const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// Тост
-function toast(msg, type = 'info') {
-  const c = $('#toastContainer') || document.createElement('div');
-  if (!c.id) { c.id = 'toastContainer'; c.className = 'toast-container'; document.body.appendChild(c); }
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.style.borderColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--accent)';
-  el.textContent = msg;
-  c.appendChild(el);
-  setTimeout(() => el.remove(), 2500);
-}
-
-// Часы
-setInterval(() => {
+// Часы реального времени
+function updateClock() {
   const now = new Date();
-  $('#clock').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-}, 1000);
-$('#clock').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const el = $('#clock');
+  if (el) el.textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+updateClock();
+setInterval(updateClock, 1000);
 
 // Вкладки
-$$('.tab').forEach(t => t.onclick = () => {
-  $$('.tab').forEach(x => x.classList.remove('active'));
-  $$('.tab-panel').forEach(x => x.classList.remove('active'));
-  t.classList.add('active');
-  $('#tab-' + t.dataset.tab).classList.add('active');
-  if (t.dataset.tab === 'stats') renderStats();
+$$('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    $$('.tab').forEach(x => x.classList.remove('active'));
+    $$('.tab-panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    const panel = $('#tab-' + t.dataset.tab);
+    if (panel) panel.classList.add('active');
+    if (t.dataset.tab === 'stats') renderStats();
+  });
 });
 
-// ЗАДАЧИ
+// Задачи
 function renderTasks() {
   const c = $('#tasksContainer');
+  if (!c) return;
   let list = [...state.tasks];
-  
   const search = $('#searchInput').value.toLowerCase();
   if (search) list = list.filter(t => t.text.toLowerCase().includes(search));
-  
   const fs = $('#filterStatus').value;
   if (fs === 'active') list = list.filter(t => !t.done);
   if (fs === 'done') list = list.filter(t => t.done);
 
-  // Сортировка
   list.sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1;
     const p = { high: 0, mid: 1, low: 2 };
@@ -93,121 +72,76 @@ function updateStats() {
   const total = state.tasks.length;
   const done = state.tasks.filter(t => t.done).length;
   const pct = total ? Math.round(done / total * 100) : 0;
-  
-  $('#statTotal').textContent = total;
-  $('#statDone').textContent = done;
-  $('#statPercent').textContent = pct + '%';
-  $('#progressFill').style.width = pct + '%';
+  if ($('#statTotal')) $('#statTotal').textContent = total;
+  if ($('#statDone')) $('#statDone').textContent = done;
+  if ($('#statPercent')) $('#statPercent').textContent = pct + '%';
+  if ($('#progressFill')) $('#progressFill').style.width = pct + '%';
 }
 
 window.toggleTask = (id) => {
   const t = state.tasks.find(x => x.id === id);
   if (!t) return;
   t.done = !t.done;
-  
-  // Логика стрика
   if (t.done) {
     const today = new Date().toDateString();
-    if (state.lastDate !== today) {
-      state.streak++;
-      state.lastDate = today;
-    }
+    if (state.lastDate !== today) { state.streak++; state.lastDate = today; }
   }
-  save();
-  renderTasks();
+  save(); renderTasks();
 };
 
 window.deleteTask = (id) => {
   state.tasks = state.tasks.filter(x => x.id !== id);
-  save();
-  renderTasks();
+  save(); renderTasks();
 };
 
-$('#addBtn').onclick = () => {
+$('#addBtn')?.addEventListener('click', () => {
   const text = $('#taskInput').value.trim();
   if (!text) return;
-  
-  state.tasks.push({
-    id: uid(),
-    text,
-    time: $('#taskTime').value || null,
-    priority: $('#taskPriority').value,
-    done: false
-  });
-  
-  save();
-  renderTasks();
-  
-  $('#taskInput').value = '';
-  $('#taskTime').value = '';
-};
+  state.tasks.push({ id: uid(), text, time: $('#taskTime').value || null, priority: $('#taskPriority').value, done: false });
+  save(); renderTasks();
+  $('#taskInput').value = ''; $('#taskTime').value = '';
+});
 
-$('#taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#addBtn').click(); });
+$('#taskInput')?.addEventListener('keydown', e => { if (e.key === 'Enter') $('#addBtn').click(); });
+$('#clearDone')?.addEventListener('click', () => { state.tasks = state.tasks.filter(t => !t.done); save(); renderTasks(); });
+['searchInput', 'filterStatus'].forEach(id => $('#' + id)?.addEventListener('input', renderTasks));
 
-$('#clearDone').onclick = () => {
-  state.tasks = state.tasks.filter(t => !t.done);
-  save();
-  renderTasks();
-};
-
-['searchInput', 'filterStatus'].forEach(id => $('#' + id).addEventListener('input', renderTasks));
-
-// СТАТИСТИКА
+// Статистика
 function renderStats() {
   const total = state.tasks.length;
   const done = state.tasks.filter(t => t.done).length;
   const pct = total ? Math.round(done / total * 100) : 0;
-  
-  $('#donutChart').style.background = `conic-gradient(var(--accent) ${pct}%, var(--border) ${pct}%)`;
-  $('#donutCaption').textContent = `${done} из ${total}`;
-  $('#streakBox').textContent = state.streak;
+  if ($('#donutChart')) $('#donutChart').style.background = `conic-gradient(var(--accent) ${pct}%, var(--border) ${pct}%)`;
+  if ($('#donutCaption')) $('#donutCaption').textContent = `${done} из ${total}`;
+  if ($('#streakBox')) $('#streakBox').textContent = state.streak;
 }
 
-// ПОМОДОРО
+// Помодоро
 let pomoInterval = null, pomoTotal = 25 * 60, pomoLeft = 25 * 60, pomoRun = false;
-
 function renderPomo() {
-  const m = Math.floor(pomoLeft / 60);
-  const s = pomoLeft % 60;
-  $('#pomoTime').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  const pct = (pomoTotal - pomoLeft) / pomoTotal;
-  $('#pomoRing').style.strokeDashoffset = 565.5 * (1 - pct);
+  const m = Math.floor(pomoLeft / 60), s = pomoLeft % 60;
+  if ($('#pomoTime')) $('#pomoTime').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  if ($('#pomoRing')) $('#pomoRing').style.strokeDashoffset = 565.5 * (1 - (pomoTotal - pomoLeft) / pomoTotal);
 }
-
-$('#pomoStart').onclick = () => {
-  if (pomoRun) {
-    clearInterval(pomoInterval);
-    pomoRun = false;
-    $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт';
-  } else {
-    pomoRun = true;
-    $('#pomoStart').innerHTML = '<i class="fas fa-pause"></i> Пауза';
+$('#pomoStart')?.addEventListener('click', () => {
+  if (pomoRun) { clearInterval(pomoInterval); pomoRun = false; $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт'; }
+  else {
+    pomoRun = true; $('#pomoStart').innerHTML = '<i class="fas fa-pause"></i> Пауза';
     pomoInterval = setInterval(() => {
       pomoLeft--;
-      if (pomoLeft <= 0) {
-        clearInterval(pomoInterval);
-        pomoRun = false;
-        $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт';
-        pomoLeft = pomoTotal;
-        toast('🍅 Помодоро завершен!', 'success');
-      }
+      if (pomoLeft <= 0) { clearInterval(pomoInterval); pomoRun = false; $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт'; pomoLeft = pomoTotal; }
       renderPomo();
     }, 1000);
   }
-};
+});
+$('#pomoReset')?.addEventListener('click', () => { clearInterval(pomoInterval); pomoRun = false; pomoLeft = pomoTotal; $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт'; renderPomo(); });
 
-$('#pomoReset').onclick = () => {
-  clearInterval(pomoInterval);
-  pomoRun = false;
-  pomoLeft = pomoTotal;
-  $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт';
-  renderPomo();
-};
-
-// ПРИВЫЧКИ
+// Привычки
 function renderHabits() {
+  const c = $('#habitsList');
+  if (!c) return;
   const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-  $('#habitsList').innerHTML = state.habits.map((h, i) => `
+  c.innerHTML = state.habits.map((h, i) => `
     <div class="habit">
       <button class="del-habit" onclick="delHabit(${i})"><i class="fas fa-xmark"></i></button>
       <p><b>${esc(h.name)}</b></p>
@@ -220,103 +154,22 @@ function renderHabits() {
 
 window.delHabit = (i) => { state.habits.splice(i, 1); save(); renderHabits(); };
 window.tickHabit = (i, j) => {
-  const days = state.habits[i].days;
-  const idx = days.indexOf(j);
+  const days = state.habits[i].days, idx = days.indexOf(j);
   if (idx >= 0) days.splice(idx, 1); else days.push(j);
-  save();
-  renderHabits();
+  save(); renderHabits();
 };
 
-$('#habitAddBtn').onclick = () => {
+$('#habitAddBtn')?.addEventListener('click', () => {
   const v = $('#habitInput').value.trim();
   if (!v) return;
   state.habits.push({ name: v, days: [] });
-  save();
-  renderHabits();
-  $('#habitInput').value = '';
-};
-
-// ИНИЦИАЛИЗАЦИЯ
-document.documentElement.style.setProperty('--accent', state.settings.accent);
-renderTasks();
-renderHabits();
-renderPomo(); document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'megaplan_backup.json';
-  a.click();
-};
-
-$('#resetBtn').onclick = () => {
-  if (confirm('Точно сбросить ВСЁ?')) {
-    localStorage.removeItem('megaplan_v3');
-    location.reload();
-  }
-};
-
-// Звук
-function playBeep() {
-  if (!state.settings.sound) return;
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.frequency.value = 880;
-    g.gain.setValueAtTime(0.1, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    o.start(); o.stop(ctx.currentTime + 0.3);
-  } catch (e) {}
-}
+  save(); renderHabits(); $('#habitInput').value = '';
+});
 
 // Инициализация
-document.documentElement.style.setProperty('--accent', state.settings.accent);
-if (state.settings.sound !== undefined) $('#soundToggle').checked = state.settings.sound;
-if (state.settings.anim !== undefined) $('#animToggle').checked = state.settings.anim;
-
 renderTasks();
-renderNotes();
 renderHabits();
-renderPomo();
-
-// Стартовый набор (если пусто)
-if (state.tasks.length === 0) {
-  state.tasks = [
-    { id: uid(), text: 'Выпить стакан воды', time: '08:00', priority: 'low', done: false },
-    { id: uid(), text: 'Сделать зарядку', time: '08:30', priority: 'mid', done: false }
-  ];
-  save();
-  renderTasks();
-}t n = state.tasks.filter(t=>t.priority===p).length;
-    const w = Math.round(n/catTotal*100);
-    return `<div class="bar-row"><span>${p}</span><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${prioColors[p]};color:${prioColors[p]}"></div></div><span>${n}</span></div>`;
-  }).join('');
-
-  $('#streakBox').textContent = state.streak;
-}
-
-/* ---------- POMODORO ---------- */
-let pomoInterval = null;
-let pomoTotal = 25*60;
-let pomoLeft = 25*60;
-let pomoRunning = false;
-
-function renderPomo(){
-  const m = Math.floor(pomoLeft/60);
-  const s = pomoLeft%60;
-  $('#pomoTime').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  const pct = (pomoTotal-pomoLeft)/pomoTotal;
-  $('#pomoRing').style.strokeDashoffset = 565.5*(1-pct);
-  $('#pomoCount').textContent = state.pomodoroCount;
-}
-
-$('#pomoStart').onclick = ()=>{
-  if(pomoRunning){
-    clearInterval(pomoInterval); pomoRunning=false;
-    $('#pomoStart').innerHTML='<i class="fas fa-play"></i> Старт';
-  } else {
-    pomoRunning=true;
-    $('#pomoStart').innerHTML='<i class="fas fa-pause"></i> Пауза';
-    pomoInterval = setInterval(()=>{
-      pomoLeft--;
+renderPomo();      pomoLeft--;
       if(pomoLeft<=0){
         clearInterval(pomoInterval); pomoRunning=false;
         $('#pomoStart').innerHTML='<i class="fas fa-play"></i> Старт';
