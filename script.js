@@ -1,20 +1,19 @@
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
-// Начальное состояние
+// Состояние
 const defaultState = {
   tasks: [],
-  notes: [],
   habits: [],
   streak: 0,
   lastDate: null,
-  settings: { accent: '#4a9eff', sound: true, anim: true }
+  settings: { accent: '#9d4edd', sound: true }
 };
 
-let state = JSON.parse(localStorage.getItem('megaplan_v3')) || defaultState;
+let state = JSON.parse(localStorage.getItem('megaplan_v4')) || defaultState;
 
 // Сохранение
-const save = () => localStorage.setItem('megaplan_v3', JSON.stringify(state));
+const save = () => localStorage.setItem('megaplan_v4', JSON.stringify(state));
 
 // Утилиты
 const uid = () => Date.now() + Math.floor(Math.random() * 1000);
@@ -22,7 +21,8 @@ const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',
 
 // Тост
 function toast(msg, type = 'info') {
-  const c = $('#toastContainer');
+  const c = $('#toastContainer') || document.createElement('div');
+  if (!c.id) { c.id = 'toastContainer'; c.className = 'toast-container'; document.body.appendChild(c); }
   const el = document.createElement('div');
   el.className = 'toast';
   el.style.borderColor = type === 'success' ? 'var(--success)' : type === 'danger' ? 'var(--danger)' : 'var(--accent)';
@@ -34,8 +34,9 @@ function toast(msg, type = 'info') {
 // Часы
 setInterval(() => {
   const now = new Date();
-  $('#clockTime').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  $('#clock').textContent = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }, 1000);
+$('#clock').textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
 // Вкладки
 $$('.tab').forEach(t => t.onclick = () => {
@@ -58,7 +59,7 @@ function renderTasks() {
   if (fs === 'active') list = list.filter(t => !t.done);
   if (fs === 'done') list = list.filter(t => t.done);
 
-  // Сортировка (по времени, потом по приоритету)
+  // Сортировка
   list.sort((a, b) => {
     if (a.done !== b.done) return a.done ? 1 : -1;
     const p = { high: 0, mid: 1, low: 2 };
@@ -67,7 +68,7 @@ function renderTasks() {
   });
 
   if (!list.length) {
-    c.innerHTML = `<div class="empty-state"><i class="fas fa-mug-hot"></i><p>Пока пусто. Добавь задачу!</p></div>`;
+    c.innerHTML = `<div class="empty-state"><i class="fas fa-ghost"></i><p>Здесь пока пусто</p></div>`;
   } else {
     c.innerHTML = list.map(t => `
       <div class="task priority-${t.priority}">
@@ -104,16 +105,14 @@ window.toggleTask = (id) => {
   if (!t) return;
   t.done = !t.done;
   
-  // Логика серии (Streak)
+  // Логика стрика
   if (t.done) {
     const today = new Date().toDateString();
     if (state.lastDate !== today) {
       state.streak++;
       state.lastDate = today;
-      if (state.settings.sound) playBeep();
     }
   }
-  
   save();
   renderTasks();
 };
@@ -122,34 +121,25 @@ window.deleteTask = (id) => {
   state.tasks = state.tasks.filter(x => x.id !== id);
   save();
   renderTasks();
-  toast('Удалено', 'danger');
 };
 
 $('#addBtn').onclick = () => {
   const text = $('#taskInput').value.trim();
   if (!text) return;
   
-  const task = {
+  state.tasks.push({
     id: uid(),
     text,
     time: $('#taskTime').value || null,
     priority: $('#taskPriority').value,
     done: false
-  };
+  });
   
-  state.tasks.push(task);
   save();
   renderTasks();
   
   $('#taskInput').value = '';
   $('#taskTime').value = '';
-  toast('Добавлено', 'success');
-  
-  // Простое напоминание (если задано время)
-  if (task.time) {
-    const [h, m] = task.time.split(':');
-    toast(`⏰ Напоминание на ${h}:${m} установлено!`, 'info');
-  }
 };
 
 $('#taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('#addBtn').click(); });
@@ -158,7 +148,6 @@ $('#clearDone').onclick = () => {
   state.tasks = state.tasks.filter(t => !t.done);
   save();
   renderTasks();
-  toast('Очищено', 'success');
 };
 
 ['searchInput', 'filterStatus'].forEach(id => $('#' + id).addEventListener('input', renderTasks));
@@ -172,16 +161,6 @@ function renderStats() {
   $('#donutChart').style.background = `conic-gradient(var(--accent) ${pct}%, var(--border) ${pct}%)`;
   $('#donutCaption').textContent = `${done} из ${total}`;
   $('#streakBox').textContent = state.streak;
-
-  const prios = ['high', 'mid', 'low'];
-  const colors = { high: '#ff4d6d', mid: '#ffaa33', low: '#2ed573' };
-  const names = { high: 'Важно', mid: 'Средне', low: 'Легко' };
-  
-  $('#priorityBars').innerHTML = prios.map(p => {
-    const n = state.tasks.filter(t => t.priority === p).length;
-    const w = total ? Math.round(n / total * 100) : 0;
-    return `<div class="bar-row"><span>${names[p]}</span><div class="bar-track"><div class="bar-fill" style="width:${w}%; background:${colors[p]}"></div></div><span>${n}</span></div>`;
-  }).join('');
 }
 
 // ПОМОДОРО
@@ -211,7 +190,6 @@ $('#pomoStart').onclick = () => {
         $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт';
         pomoLeft = pomoTotal;
         toast('🍅 Помодоро завершен!', 'success');
-        if (state.settings.sound) playBeep();
       }
       renderPomo();
     }, 1000);
@@ -226,50 +204,18 @@ $('#pomoReset').onclick = () => {
   renderPomo();
 };
 
-$$('.pomo-mode').forEach(b => b.onclick = () => {
-  $$('.pomo-mode').forEach(x => x.classList.remove('active'));
-  b.classList.add('active');
-  pomoTotal = +b.dataset.min * 60;
-  pomoLeft = pomoTotal;
-  clearInterval(pomoInterval);
-  pomoRun = false;
-  $('#pomoStart').innerHTML = '<i class="fas fa-play"></i> Старт';
-  renderPomo();
-});
-
-// ЗАМЕТКИ
-function renderNotes() {
-  $('#notesList').innerHTML = state.notes.map((n, i) => `
-    <div class="note">
-      <p>${esc(n)}</p>
-      <button onclick="delNote(${i})"><i class="fas fa-xmark"></i></button>
-    </div>
-  `).join('') || '<div class="empty-state"><p>Нет заметок</p></div>';
-}
-
-window.delNote = (i) => { state.notes.splice(i, 1); save(); renderNotes(); };
-
-$('#noteAddBtn').onclick = () => {
-  const v = $('#noteInput').value.trim();
-  if (!v) return;
-  state.notes.push(v);
-  save();
-  renderNotes();
-  $('#noteInput').value = '';
-};
-
 // ПРИВЫЧКИ
 function renderHabits() {
   const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
   $('#habitsList').innerHTML = state.habits.map((h, i) => `
     <div class="habit">
-      <button onclick="delHabit(${i})"><i class="fas fa-xmark"></i></button>
+      <button class="del-habit" onclick="delHabit(${i})"><i class="fas fa-xmark"></i></button>
       <p><b>${esc(h.name)}</b></p>
       <div class="habit-btns">
         ${days.map((d, j) => `<button class="${h.days.includes(j) ? 'active' : ''}" onclick="tickHabit(${i}, ${j})">${d}</button>`).join('')}
       </div>
     </div>
-  `).join('') || '<div class="empty-state"><p>Нет привычек</p></div>';
+  `).join('') || '<div class="empty-state"><p>Добавь свою первую привычку!</p></div>';
 }
 
 window.delHabit = (i) => { state.habits.splice(i, 1); save(); renderHabits(); };
@@ -290,32 +236,11 @@ $('#habitAddBtn').onclick = () => {
   $('#habitInput').value = '';
 };
 
-// НАСТРОЙКИ
-$('#settingsBtn').onclick = () => $('#settingsModal').classList.add('open');
-$('#closeSettings').onclick = () => $('#settingsModal').classList.remove('open');
-
-$$('.accent-btn').forEach(b => b.onclick = () => {
-  document.documentElement.style.setProperty('--accent', b.dataset.accent);
-  state.settings.accent = b.dataset.accent;
-  save();
-});
-
-$('#themeToggle').onclick = () => {
-  const accents = ['#4a9eff', '#a855f7', '#22c55e', '#f59e0b'];
-  const idx = accents.indexOf(state.settings.accent);
-  const next = accents[(idx + 1) % accents.length];
-  document.documentElement.style.setProperty('--accent', next);
-  state.settings.accent = next;
-  save();
-  toast('Цвет изменен', 'success');
-};
-
-$('#soundToggle').onchange = e => { state.settings.sound = e.target.checked; save(); };
-$('#animToggle').onchange = e => { state.settings.anim = e.target.checked; save(); };
-
-$('#exportBtn').onclick = () => {
-  const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
-  const a = document.createElement('a');
+// ИНИЦИАЛИЗАЦИЯ
+document.documentElement.style.setProperty('--accent', state.settings.accent);
+renderTasks();
+renderHabits();
+renderPomo(); document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'megaplan_backup.json';
   a.click();
