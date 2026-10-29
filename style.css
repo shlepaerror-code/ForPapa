@@ -141,4 +141,29 @@ html,body{background:radial-gradient(circle at 20% 10%,#16202c,#0b0e14 90%);min-
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
 .modal.open{display:flex}
 .modal-content{background:var(--bg-card);border:1px solid var(--border);border-radius:1.5rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.8)}
-.modal-header{
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:1.5rem;border-bottom:1px solid var(--border)}
+.modal-header h2{font-size:1.2rem;display:flex;align-items:center;gap:.5rem}
+.modal-body{padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.setting-item{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border)}
+.setting-item label{font-size:.9rem;color:var(--text-dim)}
+.accent-picker{display:flex;gap:.5rem}
+.accent-btn{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:var(--transition)}
+.accent-btn:hover{transform:scale(1.15);border-color:#fff}
+.setting-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+.setting-item input[type=number]{width:80px;padding:.4rem;background:var(--bg-deep);border:1px solid var(--border);color:var(--text);border-radius:.5rem}
+.toast-container{position:fixed;bottom:2rem;right:2rem;display:flex;flex-direction:column;gap:.5rem;z-index:200}
+.toast{background:var(--bg-elev);border:1px solid var(--accent);color:var(--text);padding:.9rem 1.3rem;border-radius:1rem;box-shadow:0 0 20px rgba(74,158,255,.4);animation:slideIn .3s ease;font-size:.9rem;display:flex;align-items:center;gap:.6rem}
+.toast.success{border-color:var(--success);box-shadow:0 0 20px rgba(46,213,115,.4)}
+.toast.danger{border-color:var(--danger);box-shadow:0 0 20px rgba(255,77,109,.4)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.app.compact .task{padding:.6rem 1rem}
+.app.compact .stat-card{padding:.8rem}
+body.no-anim *{animation:none!important;transition:none!important}
+@media(max-width:768px){
+  .app-header{flex-direction:column;align-items:flex-start}
+  .header-right{width:100%;justify-content:space-between}
+  .tabs .tab{min-width:80px;font-size:.8rem;padding:.6rem .5rem}
+  .task-meta{font-size:.7rem}
+  .pomo-ring{width:200px;height:200px}
+  .pomo-time{font-size:2.4rem}
+}
